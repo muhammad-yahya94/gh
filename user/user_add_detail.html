@@ -1,0 +1,258 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ad Details - OLX Clone</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --sidebar-width: 250px;
+            --sidebar-bg: #343a40;
+            --sidebar-color: #e9ecef;
+            --sidebar-active-bg: #007bff;
+            --header-height: 56px;
+        }
+        body { overflow-x: hidden; }
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background: var(--sidebar-bg);
+            color: var(--sidebar-color);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        .sidebar-header {
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.2);
+        }
+        .sidebar-menu { padding: 0; list-style: none; }
+        .sidebar-menu li { position: relative; }
+        .sidebar-menu li a {
+            display: block;
+            padding: 0.75rem 1rem;
+            color: var(--sidebar-color);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .sidebar-menu li a:hover,
+        .sidebar-menu li a.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        .sidebar-menu li a.active { background: var(--sidebar-active-bg); }
+        .sidebar-menu li a i { margin-right: 10px; width: 20px; text-align: center; }
+        .sidebar-menu .submenu { padding-left: 20px; list-style: none; display: none; }
+        .sidebar-menu .submenu.show { display: block; }
+        .main-content {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            transition: all 0.3s;
+        }
+        .header {
+            height: var(--header-height);
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .sidebar-collapsed { margin-left: -250px; }
+        .content-expanded { margin-left: 0; }
+        .badge-sm { font-size: 0.65em; padding: 0.25em 0.4em; }
+        .card-header { background-color: #f8f9fa; }
+        .btn-primary { background-color: #007bff; border-color: #007bff; }
+        .btn-primary:hover { background-color: #0056b3; border-color: #0056b3; }
+        .btn-outline-secondary { border-color: #6c757d; color: #6c757d; }
+        .btn-outline-secondary:hover { background-color: #6c757d; color: white; }
+        .btn-outline-warning { border-color: #ffc107; color: #ffc107; }
+        .btn-outline-warning:hover { background-color: #ffc107; color: #212529; }
+        .btn-outline-danger { border-color: #dc3545; color: #dc3545; }
+        .btn-outline-danger:hover { background-color: #dc3545; color: white; }
+        .ad-image { max-width: 100%; height: auto; }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">OLX User</h4>
+            <button class="btn btn-sm btn-outline-light toggle-sidebar d-lg-none">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li>
+                <a href="#adsSubmenu" data-bs-toggle="collapse" aria-expanded="true" class="dropdown-toggle active">
+                    <i class="fas fa-bullhorn"></i> Ads
+                </a>
+                <ul class="submenu collapse show" id="adsSubmenu">
+                    <li><a href="publish_ad.html"><i class="fas fa-plus-circle"></i> Publish Ad</a></li>
+                    <li><a href="my_ads.html" class="active"><i class="fas fa-list"></i> My Ads</a></li>
+                </ul>
+            </li>
+            <li><a href="profile.html"><i class="fas fa-user"></i> Profile</a></li>
+            <li><a href="messages.html"><i class="fas fa-comments"></i> Messages</a></li>
+            <li><a href="favorites.html"><i class="fas fa-heart"></i> Favorites</a></li>
+            <li><a href="logout.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <nav class="header navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+            <div class="container-fluid">
+                <button class="btn btn-link toggle-sidebar d-none d-lg-block">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="d-flex align-items-center ms-auto">
+                    <div class="dropdown me-3">
+                        <a href="#" class="dropdown-toggle" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-bell"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">3</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown">
+                            <li><h6 class="dropdown-header">Notifications</h6></li>
+                            <li><a class="dropdown-item" href="#"><small>New message received</small></a></li>
+                            <li><a class="dropdown-item" href="#"><small>Ad approved</small></a></li>
+                            <li><a class="dropdown-item" href="#"><small>Ad inquiry</small></a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-center" href="#">View all</a></li>
+                        </ul>
+                    </div>
+                    <div class="dropdown">
+                        <a href="#" class="dropdown-toggle d-flex align-items-center" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="https://via.placeholder.com/40" class="rounded-circle me-2" alt="User">
+                            <span>User Name</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="profile.html"><i class="fas fa-user me-2"></i> Profile</a></li>
+                            <li><a class="dropdown-item" href="settings.html"><i class="fas fa-cog me-2"></i> Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="logout.html"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Page Content -->
+        <div class="container-fluid py-4">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h2 class="mb-0">Ad Details</h2>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="dashboard.html">Home</a></li>
+                            <li class="breadcrumb-item"><a href="my_ads.html">My Ads</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Ad Details</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary" id="adTitle">Loading...</h6>
+                    <div>
+                        <button class="btn btn-sm btn-outline-warning me-1" onclick="editAd()">Edit</button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteAd()">Delete</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <h5>Details</h5>
+                            <p><strong>Category:</strong> <span id="adCategory"></span></p>
+                            <p><strong>Price:</strong> $<span id="adPrice"></span></p>
+                            <p><strong>Status:</strong> <span id="adStatus" class="badge"></span></p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <h5>Images</h5>
+                            <img src="https://via.placeholder.com/300" class="ad-image mb-2" alt="Ad Image" id="adImage">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <h5>Description</h5>
+                        <p id="adDescription"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Mock ad data
+        const ads = [
+            { id: 1, title: "iPhone 12", category: "Mobile Phones", price: 600, status: "Active", description: "Used iPhone 12 in excellent condition, 64GB storage, blue color.", image: "https://via.placeholder.com/300" },
+            { id: 2, title: "Laptop Dell XPS", category: "Electronics", price: 1200, status: "Pending", description: "Dell XPS 13, 16GB RAM, 512GB SSD, like new.", image: "https://via.placeholder.com/300" },
+            { id: 3, title: "Honda Civic 2019", category: "Cars", price: 18000, status: "Active", description: "Honda Civic 2019, well-maintained, 50,000 miles.", image: "https://via.placeholder.com/300" }
+        ];
+
+        // Load ad details
+        function loadAdDetails() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const adId = parseInt(urlParams.get('id'));
+            const ad = ads.find(a => a.id === adId);
+
+            if (ad) {
+                $('#adTitle').text(ad.title);
+                $('#adCategory').text(ad.category);
+                $('#adPrice').text(ad.price);
+                $('#adDescription').text(ad.description);
+                $('#adImage').attr('src', ad.image);
+                const statusClass = ad.status === "Active" ? "bg-success" :
+                                   ad.status === "Pending" ? "bg-warning" : "bg-danger";
+                $('#adStatus').text(ad.status).addClass(statusClass);
+            } else {
+                $('#adTitle').text("Ad Not Found");
+                $('#adCategory').text("N/A");
+                $('#adPrice').text("N/A");
+                $('#adStatus').text("N/A").addClass("bg-danger");
+                $('#adDescription').text("The requested ad could not be found.");
+            }
+        }
+
+        // Edit ad (placeholder)
+        function editAd() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const adId = parseInt(urlParams.get('id'));
+            alert(`Editing ad ID: ${adId}`);
+        }
+
+        // Delete ad
+        function deleteAd() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const adId = parseInt(urlParams.get('id'));
+            if (confirm(`Are you sure you want to delete ad ID: ${adId}?`)) {
+                const index = ads.findIndex(a => a.id === adId);
+                if (index !== -1) {
+                    ads.splice(index, 1);
+                    alert(`Ad ID: ${adId} has been deleted.`);
+                    window.location.href = 'my_ads.html';
+                }
+            }
+        }
+
+        // Initialize
+        $(document).ready(function() {
+            $('.toggle-sidebar').click(function() {
+                $('.sidebar').toggleClass('sidebar-collapsed');
+                $('.main-content').toggleClass('content-expanded');
+            });
+            $('.sidebar-menu li a').click(function() {
+                $('.sidebar-menu li a').removeClass('active');
+                $(this).addClass('active');
+            });
+            loadAdDetails();
+        });
+    </script>
+</body>
+</html>
