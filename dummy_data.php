@@ -19,11 +19,11 @@ $lastNames = [
 
 // Categories with realistic images
 $categories = [
-    ['Smartphones', 'smartphone.jpg'],
-    ['Laptops', 'laptop.jpg'],
-    ['Tablets', 'tablet.jpg'],
-    ['Accessories', 'accessories.jpg'],
-    ['Gaming', 'gaming.jpg']
+    ['Smartphones', 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500'],
+    ['Laptops', 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=500'],
+    ['Gaming', 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500'],
+    ['Audio', 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500'],
+    ['Accessories', 'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=500']
 ];
 
 // Subcategories with realistic mappings
@@ -33,12 +33,11 @@ $subcategories = [
     ['Xiaomi', 1],
     ['MacBook', 2],
     ['Windows Laptops', 2],
-    ['iPad', 3],
-    ['Android Tablets', 3],
+    ['Gaming Consoles', 3],
+    ['Gaming Accessories', 3],
     ['Headphones', 4],
-    ['Chargers', 4],
-    ['PlayStation', 5],
-    ['Xbox', 5]
+    ['Speakers', 4],
+    ['Phone Cases', 5]
 ];
 
 // Product conditions
@@ -83,23 +82,18 @@ try {
     
     // Re-enable foreign key checks
     $pdo->exec("SET FOREIGN_KEY_CHECKS = 1");
-    
-    // Create uploads directory if it doesn't exist
-    if (!file_exists('uploads/ads')) {
-        mkdir('uploads/ads', 0777, true);
-    }
 
     // Insert Categories
     echo "Inserting categories...\n";
     foreach ($categories as $category) {
-        $stmt = $pdo->prepare("INSERT INTO categories (name, image) VALUES (?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO categories (name, image_path) VALUES (?, ?)");
         $stmt->execute($category);
     }
 
     // Insert Subcategories
     echo "Inserting subcategories...\n";
     foreach ($subcategories as $subcategory) {
-        $stmt = $pdo->prepare("INSERT INTO subcategories (name, category_id) VALUES (?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO subcategories (name, category_id, ad_count) VALUES (?, ?, 0)");
         $stmt->execute($subcategory);
     }
 
@@ -112,10 +106,11 @@ try {
         $name = generatePakistaniName();
         $email = generatePakistaniEmail($name);
         $password = password_hash('user123', PASSWORD_DEFAULT);
-        $role = 'user';
+        $role = 'User';
+        $phone = generatePakistaniPhone();
         
-        $stmt = $pdo->prepare("INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$name, $email, $password, $role]);
+        $stmt = $pdo->prepare("INSERT INTO users (name, email, password, role, phone) VALUES (?, ?, ?, ?, ?)");
+        $stmt->execute([$name, $email, $password, $role, $phone]);
         $users[] = $pdo->lastInsertId();
     }
 
@@ -124,24 +119,34 @@ try {
     foreach ($adminEmails as $email) {
         $name = generatePakistaniName();
         $password = password_hash('admin123', PASSWORD_DEFAULT);
-        $role = 'admin';
+        $role = 'Admin';
+        $phone = generatePakistaniPhone();
         
-        $stmt = $pdo->prepare("INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$name, $email, $password, $role]);
+        $stmt = $pdo->prepare("INSERT INTO users (name, email, password, role, phone) VALUES (?, ?, ?, ?, ?)");
+        $stmt->execute([$name, $email, $password, $role, $phone]);
         $users[] = $pdo->lastInsertId();
     }
 
     // Insert ads
     echo "Inserting ads...\n";
-    $statuses = ['pending', 'approved', 'rejected'];
+    $statuses = ['active', 'rejected', 'pending'];
     
     // Sample product titles for each category
     $productTitles = [
         1 => ['iPhone 13 Pro Max', 'Samsung Galaxy S21', 'Xiaomi Mi 11', 'OnePlus 9 Pro', 'Google Pixel 6'],
         2 => ['MacBook Pro M1', 'Dell XPS 13', 'HP Spectre x360', 'Lenovo ThinkPad', 'Asus ROG'],
-        3 => ['iPad Pro 12.9', 'Samsung Galaxy Tab S7', 'Microsoft Surface Pro', 'Lenovo Tab P11', 'Huawei MatePad'],
-        4 => ['AirPods Pro', 'Sony WH-1000XM4', 'Samsung Galaxy Buds', 'Anker PowerCore', 'Logitech MX Master'],
-        5 => ['PlayStation 5', 'Xbox Series X', 'Nintendo Switch', 'Gaming PC RTX 3080', 'Gaming Laptop']
+        3 => ['PlayStation 5', 'Xbox Series X', 'Nintendo Switch', 'Gaming PC RTX 3080', 'Gaming Laptop'],
+        4 => ['AirPods Pro', 'Sony WH-1000XM4', 'Samsung Galaxy Buds', 'JBL Flip 5', 'Bose QuietComfort'],
+        5 => ['iPhone Case', 'Samsung Case', 'Laptop Bag', 'Wireless Charger', 'Screen Protector']
+    ];
+
+    // Sample images for ads
+    $adImages = [
+        1 => 'https://images.unsplash.com/photo-1632661674596-79bd3e16c2bd?w=500',
+        2 => 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500',
+        3 => 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=500',
+        4 => 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500',
+        5 => 'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=500'
     ];
 
     for ($i = 0; $i < 50; $i++) {
@@ -158,14 +163,14 @@ try {
             case 2: // Laptops
                 $basePrice = rand(80000, 300000);
                 break;
-            case 3: // Tablets
-                $basePrice = rand(30000, 150000);
-                break;
-            case 4: // Accessories
-                $basePrice = rand(2000, 50000);
-                break;
-            case 5: // Gaming
+            case 3: // Gaming
                 $basePrice = rand(50000, 250000);
+                break;
+            case 4: // Audio
+                $basePrice = rand(5000, 50000);
+                break;
+            case 5: // Accessories
+                $basePrice = rand(1000, 20000);
                 break;
         }
 
@@ -176,21 +181,21 @@ try {
         
         $stmt = $pdo->prepare("
             INSERT INTO ads (
-                title, description, price, `condition`, location,
-                user_id, category_id, subcategory_id, status, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+                title, description, price, location,
+                user_id, category_id, subcategory_id, status, image_path
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
         
         $stmt->execute([
             $title,
             $description,
             $basePrice,
-            $conditions[array_rand($conditions)],
             $cities[array_rand($cities)],
             $users[array_rand($users)],
             $category_id,
             $subcategory_id,
-            $statuses[array_rand($statuses)]
+            $statuses[array_rand($statuses)],
+            $adImages[$category_id]
         ]);
     }
 

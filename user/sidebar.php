@@ -5,7 +5,7 @@ $currentPage = basename($_SERVER['PHP_SELF']); // e.g., 'dashboard.php'
 
 <div class="sidebar">
     <div class="sidebar-header d-flex justify-content-between align-items-center">
-        <h4 class="mb-0"> gadget hub User </h4>
+        <h4 class="mb-0"> <a href="index.php">gadget hub User</a>  </h4>
         <button class="btn btn-sm btn-outline-light toggle-sidebar d-lg-none">
             <i class="fas fa-times"></i>
         </button>
