@@ -36,10 +36,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_name'] = $user['name'];
             // Store the user's role in the session
-            $_SESSION['user_role'] = $user['role'] ?? 'User'; // Default to 'User' if role is somehow not set
+            $_SESSION['user_role'] = $user['role']; // Remove the default 'User' fallback
             
-            // Check if the user is an Admin
-            if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'Admin') {
+            // Debug information
+            error_log("User role from database: " . $user['role']);
+            error_log("Session role: " . $_SESSION['user_role']);
+            
+            // Check if the user is an Admin (case-insensitive comparison)
+            if (strtolower($_SESSION['user_role']) === 'admin') {
                 // Redirect to admin dashboard
                 header('Location: admin/dashboard.php');
                 exit();

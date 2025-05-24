@@ -122,9 +122,9 @@ INSERT INTO `subcategories` (`id`, `name`, `category_id`, `ad_count`) VALUES
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `password`, `role`, `phone`, `profile_image`) VALUES
-(1, 'Admin User', 'admin@gadgethub.com', '$2y$10$8K1p/a0dR1xqM8K1p/a0dR1xqM8K1p/a0dR1xqM8K1p/a0dR1xqM', 'Admin', '1234567890', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=500'),
-(2, 'John Doe', 'john@example.com', '$2y$10$8K1p/a0dR1xqM8K1p/a0dR1xqM8K1p/a0dR1xqM8K1p/a0dR1xqM', 'User', '2345678901', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500'),
-(3, 'Jane Smith', 'jane@example.com', '$2y$10$8K1p/a0dR1xqM8K1p/a0dR1xqM8K1p/a0dR1xqM8K1p/a0dR1xqM', 'User', '3456789012', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=500');
+(1, 'Admin User', 'admin@gadgethub.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Admin', '1234567890', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=500'),
+(2, 'John Doe', 'john@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'User', '2345678901', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500'),
+(3, 'Jane Smith', 'jane@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'User', '3456789012', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=500');
 
 --
 -- Dumping data for table `ads`
@@ -187,3 +187,4 @@ ALTER TABLE `subcategories`
   ADD CONSTRAINT `subcategories_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`);
 
 COMMIT;
+
