@@ -110,98 +110,47 @@ if (isset($_GET['filter_category']) && !empty($_GET['filter_category'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Categories - Gadget Hub Admin</title>
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --sidebar-width: 250px;
-            --sidebar-bg: #343a40;
-            --sidebar-color: #e9ecef;
-            --sidebar-active-bg: #007bff;
-            --header-height: 56px;
-        }
-        body { overflow-x: hidden; }
-        .sidebar {
-            width: var(--sidebar-width);
-            height: 100vh;
-            position: fixed;
-            left: 0;
-            top: 0;
-            background: var(--sidebar-bg);
-            color: var(--sidebar-color);
-            transition: all 0.3s;
-            z-index: 1000;
-        }
-        .sidebar-header {
-            padding: 1rem;
-            background: rgba(0, 0, 0, 0.2);
-        }
-        .sidebar-menu { padding: 0; list-style: none; }
-        .sidebar-menu li { position: relative; }
-        .sidebar-menu li a {
-            display: block;
-            padding: 0.75rem 1rem;
-            color: var(--sidebar-color);
-            text-decoration: none;
-            transition: all 0.3s;
-        }
-        .sidebar-menu li a:hover,
-        .sidebar-menu li a.active {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-        }
-        .sidebar-menu li a.active { background: var(--sidebar-active-bg); }
-        .sidebar-menu li a i { margin-right: 10px; width: 20px; text-align: center; }
-        .sidebar-menu .submenu { padding-left: 20px; list-style: none; display: none; }
-        .sidebar-menu .submenu.show { display: block; }
-        .main-content {
-            margin-left: var(--sidebar-width);
-            min-height: 100vh;
-            transition: all 0.3s;
-        }
-        .header {
-            height: var(--header-height);
-            background: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        .sidebar-collapsed { margin-left: -250px; }
-        .content-expanded { margin-left: 0; }
-        .badge-sm { font-size: 0.65em; padding: 0.25em 0.4em; }
-        .card-header { background-color: #f8f9fa; }
-        .table thead th { background-color: #f1f3f5; }
-        .form-label { font-weight: 500; }
-        .btn-primary { background-color: #007bff; border-color: #007bff; }
-        .btn-primary:hover { background-color: #0056b3; border-color: #0056b3; }
-        .btn-outline-secondary { border-color: #6c757d; color: #6c757d; }
-        .btn-outline-secondary:hover { background-color: #6c757d; color: white; }
-        .btn-outline-warning { border-color: #ffc107; color: #ffc107; }
-        .btn-outline-warning:hover { background-color: #ffc107; color: #212529; }
-        .btn-outline-danger { border-color: #dc3545; color: #dc3545; }
-        .btn-outline-danger:hover { background-color: #dc3545; color: white; }
-        .empty-state { text-align: center; padding: 2rem; }
-        .category-icon { width: 20px; height: 20px; margin-right: 8px; vertical-align: middle; }
-        .list-group-item { display: flex; justify-content: space-between; align-items: center; }
-    </style>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/admin-style.css">
 </head>
 <body>
     <?php include 'sidebar.php'; ?>
 
     <div class="main-content">
-        <nav class="header navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <!-- Header -->
+        <nav class="header navbar navbar-expand-lg navbar-light">
             <div class="container-fluid">
                 <button class="btn btn-link toggle-sidebar d-none d-lg-block">
                     <i class="fas fa-bars"></i>
                 </button>
                 <div class="d-flex align-items-center ms-auto">
-                    <!-- User menu would go here -->
+                    <div class="dropdown">
+                        <a href="#" class="dropdown-toggle d-flex align-items-center" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="https://ui-avatars.com/api/?name=Admin+User&background=4361ee&color=fff" class="rounded-circle me-2" alt="User">
+                            <span>Admin User</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> Profile</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="logout.php"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </nav>
 
+        <!-- Page Content -->
         <div class="container-fluid py-4">
             <div class="row mb-4">
                 <div class="col-12">
-                    <h2 class="mb-0">Manage Categories</h2>
+                    <h2 class="mb-0">Categories</h2>
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
@@ -211,171 +160,222 @@ if (isset($_GET['filter_category']) && !empty($_GET['filter_category'])) {
                 </div>
             </div>
 
-            <!-- Add Category Form -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Add Category</h6>
-                </div>
-                <div class="card-body">
-                    <form method="POST" enctype="multipart/form-data">
-                        <div class="row">
-                            <div class="col">
-                                <label for="categoryName" class="form-label">Category Name</label>
-                                <input type="text" class="form-control" name="category_name" id="categoryName" placeholder="Enter category name" required>
-                            </div>
-                            <div class="col">
-                                <label for="categoryImage" class="form-label">Category Image</label>
-                                <input type="file" class="form-control" name="category_image" id="categoryImage" required>
-                            </div>
+            <!-- Categories Section -->
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="table-card">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="mb-0">All Categories</h5>
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                                <i class="fas fa-plus me-2"></i>Add Category
+                            </button>
                         </div>
-                        <div class="d-flex justify-content-end mt-4">
-                            <button type="reset" class="btn btn-outline-secondary me-2">Clear</button>
-                            <button type="submit" name="add_category" class="btn btn-primary">Add Category</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Category Table -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">All Categories</h6>
-                </div>
-                <div class="card-body">
-                    <?php if (empty($categories)): ?>
-                        <div class="empty-state">
-                            <h5>No Categories Available</h5>
-                            <p>Add a new category using the form above.</p>
-                        </div>
-                    <?php else: ?>
                         <div class="table-responsive">
-                            <table class="table table-bordered table-hover">
-                                <thead class="thead-light">
+                            <table class="table">
+                                <thead>
                                     <tr>
-                                        <th>ID</th>
                                         <th>Name</th>
                                         <th>Image</th>
-                                   
+                                        <th>Subcategories</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <?php foreach ($categories as $category): ?>
-                                        <tr>
-                                            <td><?= htmlspecialchars($category['id']) ?></td>
-                                            <td>
-                                                <?= htmlspecialchars($category['name']) ?>
-                                            </td>
-                                            <td>
-                                                <?php if (!empty($category['image_path'])): ?>
-                                                    <img src="<?= htmlspecialchars($category['image_path']) ?>" alt="<?= htmlspecialchars($category['name']) ?>" style="width: 50px; height: auto; margin-right: 8px; vertical-align: middle;">
-                                                <?php else: ?>
-                                                    No Image
-                                                <?php endif; ?>
-                                            </td>
-                                         
-                                            <td>
-                                                <a href="edit_category.php?id=<?= $category['id'] ?>" class="btn btn-sm btn-outline-warning me-1">Edit</a>
-                                                <form method="POST" style="display:inline;">
-                                                    <input type="hidden" name="category_id" value="<?= $category['id'] ?>">
-                                                    <button type="submit" name="delete_category" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this category?')">Delete</button>
-                                                </form>
-                                            </td>
-                                        </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-folder text-primary me-2"></i>
+                                                <?php echo htmlspecialchars($category['name']); ?>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <?php if ($category['image_path']): ?>
+                                                <img src="<?php echo htmlspecialchars($category['image_path']); ?>" alt="Category Image" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;">
+                                            <?php else: ?>
+                                                <div class="bg-light rounded" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
+                                                    <i class="fas fa-image text-muted"></i>
+                                                </div>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td>
+                                            <?php
+                                            $subcategory_count = count(array_filter($subcategories, function($sub) use ($category) {
+                                                return $sub['category_id'] == $category['id'];
+                                            }));
+                                            ?>
+                                            <span class="badge bg-info"><?php echo $subcategory_count; ?> subcategories</span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <a href="edit_category.php?id=<?php echo $category['id']; ?>" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteCategoryModal<?php echo $category['id']; ?>">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
                                     <?php endforeach; ?>
                                 </tbody>
                             </table>
                         </div>
-                    <?php endif; ?>
-                </div>
-            </div>
-
-            <!-- Add Subcategory Form -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Add Subcategory</h6>
-                </div>
-                <div class="card-body">
-                    <form method="POST">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="subcategoryName" class="form-label">Subcategory Name</label>
-                                <input type="text" class="form-control" name="subcategory_name" id="subcategoryName" placeholder="Enter subcategory name" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="parentCategory" class="form-label">Parent Category</label>
-                                <select class="form-select" name="parent_category" id="parentCategory" required>
-                                    <option value="">Select Parent Category</option>
-                                    <?php foreach ($categories as $category): ?>
-                                        <option value="<?= $category['id'] ?>"><?= htmlspecialchars($category['name']) ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="d-flex justify-content-end mt-4">
-                            <button type="reset" class="btn btn-outline-secondary me-2">Clear</button>
-                            <button type="submit" name="add_subcategory" class="btn btn-primary">Add Subcategory</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Subcategory List -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Subcategories</h6>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <form method="GET" class="row g-3">
-                            <div class="col-md-6">
-                                <label for="subcategoryFilter" class="form-label">Filter by Category</label>
-                                <select class="form-select" name="filter_category" id="subcategoryFilter" onchange="this.form.submit()">
-                                    <option value="">All Categories</option>
-                                    <?php foreach ($categories as $category): ?>
-                                        <option value="<?= $category['id'] ?>" <?= isset($_GET['filter_category']) && $_GET['filter_category'] == $category['id'] ? 'selected' : '' ?>>
-                                            <?= htmlspecialchars($category['name']) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                        </form>
                     </div>
-                    
-                    <?php if (empty($filtered_subcategories)): ?>
-                        <div class="empty-state">
-                            <h5>No Subcategories Available</h5>
-                            <p>Select a category or add a new subcategory using the form above.</p>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="table-card">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="mb-0">Subcategories</h5>
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSubcategoryModal">
+                                <i class="fas fa-plus me-2"></i>Add Subcategory
+                            </button>
                         </div>
-                    <?php else: ?>
-                        <ul class="list-group">
+                        <div class="list-group list-group-flush">
                             <?php foreach ($filtered_subcategories as $subcategory): ?>
-                                <li class="list-group-item">
-                                    <span><?= htmlspecialchars($subcategory['name']) ?> (Parent: <?= htmlspecialchars($subcategory['parent_name']) ?></span>
-                                    <div>
-                                        <a href="edit_subcategory.php?id=<?= $subcategory['id'] ?>" class="btn btn-sm btn-outline-warning me-1">Edit</a>
-                                        <form method="POST" style="display:inline;">
-                                            <input type="hidden" name="subcategory_id" value="<?= $subcategory['id'] ?>">
-                                            <button type="submit" name="delete_subcategory" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this subcategory?')">Delete</button>
-                                        </form>
-                                    </div>
-                                </li>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fas fa-tag text-primary me-2"></i>
+                                    <?php echo htmlspecialchars($subcategory['name']); ?>
+                                    <small class="text-muted d-block"><?php echo htmlspecialchars($subcategory['parent_name']); ?></small>
+                                </div>
+                                <div class="btn-group">
+                                    <a href="edit_subcategory.php?id=<?php echo $subcategory['id']; ?>" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteSubcategoryModal<?php echo $subcategory['id']; ?>">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
                             <?php endforeach; ?>
-                        </ul>
-                    <?php endif; ?>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Add Category Modal -->
+    <div class="modal fade" id="addCategoryModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Category</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="" method="POST" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="category_name" class="form-label">Category Name</label>
+                            <input type="text" class="form-control" id="category_name" name="category_name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="category_image" class="form-label">Category Image</label>
+                            <input type="file" class="form-control" id="category_image" name="category_image" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" name="add_category" class="btn btn-primary">Add Category</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Subcategory Modal -->
+    <div class="modal fade" id="addSubcategoryModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Subcategory</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="" method="POST">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="subcategory_name" class="form-label">Subcategory Name</label>
+                            <input type="text" class="form-control" id="subcategory_name" name="subcategory_name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="parent_category" class="form-label">Parent Category</label>
+                            <select class="form-select" id="parent_category" name="parent_category" required>
+                                <option value="">Select Category</option>
+                                <?php foreach ($categories as $category): ?>
+                                <option value="<?php echo $category['id']; ?>"><?php echo htmlspecialchars($category['name']); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" name="add_subcategory" class="btn btn-primary">Add Subcategory</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Category Modals -->
+    <?php foreach ($categories as $category): ?>
+    <div class="modal fade" id="deleteCategoryModal<?php echo $category['id']; ?>" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete Category</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete the category "<?php echo htmlspecialchars($category['name']); ?>"?</p>
+                    <p class="text-danger">This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form action="" method="POST" class="d-inline">
+                        <input type="hidden" name="category_id" value="<?php echo $category['id']; ?>">
+                        <button type="submit" name="delete_category" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+
+    <!-- Delete Subcategory Modals -->
+    <?php foreach ($subcategories as $subcategory): ?>
+    <div class="modal fade" id="deleteSubcategoryModal<?php echo $subcategory['id']; ?>" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete Subcategory</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete the subcategory "<?php echo htmlspecialchars($subcategory['name']); ?>"?</p>
+                    <p class="text-danger">This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form action="" method="POST" class="d-inline">
+                        <input type="hidden" name="subcategory_id" value="<?php echo $subcategory['id']; ?>">
+                        <button type="submit" name="delete_subcategory" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
     <script>
-        // Toggle sidebar
-        document.querySelectorAll('.toggle-sidebar').forEach(button => {
-            button.addEventListener('click', () => {
-                document.querySelector('.sidebar').classList.toggle('sidebar-collapsed');
-                document.querySelector('.main-content').classList.toggle('content-expanded');
-            });
+        // Toggle Sidebar
+        document.querySelector('.toggle-sidebar').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('show');
+            document.querySelector('.main-content').classList.toggle('sidebar-collapsed');
         });
     </script>
 </body>

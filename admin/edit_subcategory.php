@@ -1,6 +1,5 @@
 <?php
 include_once 'auth_check.php'; // Include authentication check
-// edit_subcategory.php
 require_once '../db.php';
 
 if (!isset($_GET['id'])) {
@@ -26,19 +25,38 @@ if (!$subcategory) {
 // Get all categories for dropdown
 $categories = $pdo->query("SELECT * FROM categories")->fetchAll(PDO::FETCH_ASSOC);
 
+$errors = [];
+$success = false;
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['subcategory_name']);
     $category_id = $_POST['parent_category'];
     
-    if (!empty($name) && !empty($category_id)) {
+    // Validation
+    if (empty($name)) {
+        $errors['name'] = 'Subcategory name is required';
+    } else {
+        // Check if subcategory name already exists in the same category (excluding current subcategory)
+        $stmt = $pdo->prepare("SELECT id FROM subcategories WHERE name = ? AND category_id = ? AND id != ?");
+        $stmt->execute([$name, $category_id, $id]);
+        if ($stmt->fetch()) {
+            $errors['name'] = 'Subcategory name already exists in this category';
+        }
+    }
+
+    if (empty($category_id)) {
+        $errors['category'] = 'Parent category is required';
+    }
+    
+    if (empty($errors)) {
         $stmt = $pdo->prepare("UPDATE subcategories SET name = ?, category_id = ? WHERE id = ?");
         $stmt->execute([$name, $category_id, $id]);
+        $success = true;
+        $_SESSION['success_message'] = "Subcategory updated successfully!";
         header("Location: categories.php");
         exit();
     }
 }
-
-require_once 'sidebar.php';
 ?>
 
 <!DOCTYPE html>
@@ -47,68 +65,14 @@ require_once 'sidebar.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Subcategory - Gadget Hub Admin</title>
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --sidebar-width: 250px;
-            --sidebar-bg: #343a40;
-            --sidebar-color: #e9ecef;
-            --sidebar-active-bg: #007bff;
-            --header-height: 56px;
-        }
-        body { overflow-x: hidden; }
-        .sidebar {
-            width: var(--sidebar-width);
-            height: 100vh;
-            position: fixed;
-            left: 0;
-            top: 0;
-            background: var(--sidebar-bg);
-            color: var(--sidebar-color);
-            transition: all 0.3s;
-            z-index: 1000;
-        }
-        .sidebar-header {
-            padding: 1rem;
-            background: rgba(0, 0, 0, 0.2);
-        }
-        .sidebar-menu { padding: 0; list-style: none; }
-        .sidebar-menu li { position: relative; }
-        .sidebar-menu li a {
-            display: block;
-            padding: 0.75rem 1rem;
-            color: var(--sidebar-color);
-            text-decoration: none;
-            transition: all 0.3s;
-        }
-        .sidebar-menu li a:hover,
-        .sidebar-menu li a.active {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-        }
-        .sidebar-menu li a.active { background: var(--sidebar-active-bg); }
-        .sidebar-menu li a i { margin-right: 10px; width: 20px; text-align: center; }
-        .sidebar-menu .submenu { padding-left: 20px; list-style: none; display: none; }
-        .sidebar-menu .submenu.show { display: block; }
-        .main-content {
-            margin-left: var(--sidebar-width);
-            min-height: 100vh;
-            transition: all 0.3s;
-        }
-        .header {
-            height: var(--header-height);
-            background: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        .sidebar-collapsed { margin-left: -250px; }
-        .content-expanded { margin-left: 0; }
-        .badge-sm { font-size: 0.65em; padding: 0.25em 0.4em; }
-        .form-label { font-weight: 500; }
-        .card-header { background-color: #f8f9fa; }
-        .btn-primary { background-color: #007bff; border-color: #007bff; }
-        .btn-primary:hover { background-color: #0056b3; border-color: #0056b3; }
-    </style>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/admin-style.css">
 </head>
 <body>
     <?php include 'sidebar.php'; ?>
@@ -122,6 +86,7 @@ require_once 'sidebar.php';
             </div>
         </nav>
 
+        <!-- Page Content -->
         <div class="container-fluid py-4">
             <div class="row mb-4">
                 <div class="col-12">
@@ -136,41 +101,105 @@ require_once 'sidebar.php';
                 </div>
             </div>
 
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Edit Subcategory</h6>
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="table-card">
+                        <div class="card-header py-3">
+                            <h5 class="mb-0">Subcategory Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <?php if (!empty($errors)): ?>
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    <strong>Please fix the following errors:</strong>
+                                    <ul class="mb-0">
+                                        <?php foreach ($errors as $error): ?>
+                                            <li><?= htmlspecialchars($error) ?></li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            <?php endif; ?>
+
+                            <form action="" method="POST">
+                                <div class="mb-3">
+                                    <label class="form-label">Subcategory Name</label>
+                                    <input type="text" 
+                                           class="form-control <?= isset($errors['name']) ? 'is-invalid' : '' ?>" 
+                                           name="subcategory_name" 
+                                           value="<?= htmlspecialchars($subcategory['name']) ?>" 
+                                           required>
+                                    <?php if (isset($errors['name'])): ?>
+                                        <div class="invalid-feedback"><?= $errors['name'] ?></div>
+                                    <?php endif; ?>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Parent Category</label>
+                                    <select class="form-select <?= isset($errors['category']) ? 'is-invalid' : '' ?>" 
+                                            name="parent_category" 
+                                            required>
+                                        <option value="">Select Parent Category</option>
+                                        <?php foreach ($categories as $category): ?>
+                                            <option value="<?= $category['id'] ?>" 
+                                                <?= $category['id'] == $subcategory['category_id'] ? 'selected' : '' ?>>
+                                                <?= htmlspecialchars($category['name']) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <?php if (isset($errors['category'])): ?>
+                                        <div class="invalid-feedback"><?= $errors['category'] ?></div>
+                                    <?php endif; ?>
+                                </div>
+
+                                <div class="mt-4">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i>Save Changes
+                                    </button>
+                                    <a href="categories.php" class="btn btn-secondary">
+                                        <i class="fas fa-times me-2"></i>Cancel
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <form method="POST">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="subcategoryName" class="form-label">Subcategory Name</label>
-                                <input type="text" class="form-control" name="subcategory_name" id="subcategoryName" 
-                                    value="<?= htmlspecialchars($subcategory['name']) ?>" required>
+
+                <div class="col-lg-4">
+                    <div class="table-card">
+                        <div class="card-header py-3">
+                            <h5 class="mb-0">Quick Tips</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-info">
+                                <h6 class="alert-heading"><i class="fas fa-info-circle me-2"></i>Important Notes</h6>
+                                <ul class="mb-0">
+                                    <li>Subcategory name must be unique within its parent category</li>
+                                    <li>Parent category is required</li>
+                                    <li>Changes will affect all ads in this subcategory</li>
+                                </ul>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="parentCategory" class="form-label">Parent Category</label>
-                                <select class="form-select" name="parent_category" id="parentCategory" required>
-                                    <option value="">Select Parent Category</option>
-                                    <?php foreach ($categories as $category): ?>
-                                        <option value="<?= $category['id'] ?>" 
-                                            <?= $category['id'] == $subcategory['category_id'] ? 'selected' : '' ?>>
-                                            <?= htmlspecialchars($category['name']) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
+                            <div class="alert alert-warning">
+                                <h6 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Current Status</h6>
+                                <p class="mb-0">
+                                    Parent Category: <strong><?= htmlspecialchars($subcategory['parent_name']) ?></strong>
+                                </p>
                             </div>
                         </div>
-                        <div class="d-flex justify-content-end mt-4">
-                            <a href="categories.php" class="btn btn-outline-secondary me-2">Cancel</a>
-                            <button type="submit" class="btn btn-primary">Update Subcategory</button>
-                        </div>
-                    </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script>
+        // Toggle Sidebar
+        document.querySelector('.toggle-sidebar').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('show');
+            document.querySelector('.main-content').classList.toggle('sidebar-collapsed');
+        });
+    </script>
 </body>
 </html>
