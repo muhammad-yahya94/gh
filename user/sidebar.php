@@ -4,8 +4,8 @@ $currentPage = basename($_SERVER['PHP_SELF']); // e.g., 'dashboard.php'
 ?>
 
 <div class="sidebar">
-    <div class="sidebar-header d-flex justify-content-between align-items-center">
-        <h4 class="mb-0"> <a href="index.php">gadget hub User</a>  </h4>
+    <div class="sidebar-header">
+        <h4 class="mb-0"> <a href="../index.php">gadget hub User</a>  </h4>
         <button class="btn btn-sm btn-outline-light toggle-sidebar d-lg-none">
             <i class="fas fa-times"></i>
         </button>
@@ -27,8 +27,8 @@ $currentPage = basename($_SERVER['PHP_SELF']); // e.g., 'dashboard.php'
             </ul>
         </li>
         <li><a href="settings.php" class="<?= $currentPage == 'settings.php' ? 'active' : '' ?>"><i class="fas fa-user"></i> Settings</a></li>
-        <li><a href="messages.php" class="<?= $currentPage == 'messages.php' ? 'active' : '' ?>"><i class="fas fa-comments"></i> Messages</a></li>
-        <li><a href="favorites.php" class="<?= $currentPage == 'favorites.php' ? 'active' : '' ?>"><i class="fas fa-heart"></i> Favorites</a></li>
+        <!-- <li><a href="messages.php" class="<?= $currentPage == 'messages.php' ? 'active' : '' ?>"><i class="fas fa-comments"></i> Messages</a></li>
+        <li><a href="favorites.php" class="<?= $currentPage == 'favorites.php' ? 'active' : '' ?>"><i class="fas fa-heart"></i> Favorites</a></li> -->
         <li><a href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
     </ul>
 </div>

@@ -94,106 +94,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Publish Ad - OLX Clone</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --sidebar-width: 250px;
-            --sidebar-bg: #343a40;
-            --sidebar-color: #e9ecef;
-            --sidebar-active-bg: #007bff;
-            --header-height: 56px;
-        }
-        body { overflow-x: hidden; }
-        .sidebar {
-            width: var(--sidebar-width);
-            height: 100vh;
-            position: fixed;
-            left: 0;
-            top: 0;
-            background: var(--sidebar-bg);
-            color: var(--sidebar-color);
-            transition: all 0.3s;
-            z-index: 1000;
-        }
-        .sidebar-header {
-            padding: 1rem;
-            background: rgba(0, 0, 0, 0.2);
-        }
-        .sidebar-menu { padding: 0; list-style: none; }
-        .sidebar-menu li { position: relative; }
-        .sidebar-menu li a {
-            display: block;
-            padding: 0.75rem 1rem;
-            color: var(--sidebar-color);
-            text-decoration: none;
-            transition: all 0.3s;
-        }
-        .sidebar-menu li a:hover,
-        .sidebar-menu li a.active {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-        }
-        .sidebar-menu li a.active { background: var(--sidebar-active-bg); }
-        .sidebar-menu li a i { margin-right: 10px; width: 20px; text-align: center; }
-        .sidebar-menu .submenu { padding-left: 20px; list-style: none; display: none; }
-        .sidebar-menu .submenu.show { display: block; }
-        .main-content {
-            margin-left: var(--sidebar-width);
-            min-height: 100vh;
-            transition: all 0.3s;
-        }
-        .header {
-            height: var(--header-height);
-            background: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        .sidebar-collapsed { margin-left: -250px; }
-        .content-expanded { margin-left: 0; }
-        .badge
-
--sm { font-size: 0.65em; padding: 0.25em 0.4em; }
-        .form-label { font-weight: 500; }
-        .card-header { background-color: #f8f9fa; }
-        .btn-primary { background-color: #007bff; border-color: #007bff; }
-        .btn-primary:hover { background-color: #0056b3; border-color: #0056b3; }
-        .btn-outline-secondary { border-color: #6c757d; color: #6c757d; }
-        .btn-outline-secondary:hover { background-color: #6c757d; color: white; }
-    </style>
+    <link rel="stylesheet" href="../admin/assets/css/admin-style.css">
 </head>
 <body>
     <?php include 'sidebar.php'; ?>
 
     <div class="main-content">
-        <nav class="header navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+                <nav class="header navbar navbar-expand-lg navbar-light bg-white shadow-sm">
             <div class="container-fluid">
                 <button class="btn btn-link toggle-sidebar d-none d-lg-block">
                     <i class="fas fa-bars"></i>
                 </button>
-                <div class="d-flex align-items-center ms-auto">
+                 <div class="d-flex align-items-center ms-auto">
                     <div class="dropdown me-3">
-                        <a href="#" class="dropdown-toggle" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-bell"></i>
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">3</span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown">
-                            <li><h6 class="dropdown-header">Notifications</h6></li>
-                            <li><a class="dropdown-item" href="#"><small>New message received</small></a></li>
-                            <li><a class="dropdown-item" href="#"><small>Ad approved</small></a></li>
-                            <li><a class="dropdown-item" href="#"><small>Ad inquiry</small></a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-center" href="#">View all</a></li>
-                        </ul>
+                 
                     </div>
                     <div class="dropdown">
                         <a href="#" class="dropdown-toggle d-flex align-items-center" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="https://via.placeholder.com/40" class="rounded-circle me-2" alt="User">
-                            <span>User Name</span>
+                            <img src="https://ui-avatars.com/api/?name=Admin+User&background=4361ee&color=fff" class="rounded-circle me-2" alt="User">
+                            <span><?= htmlspecialchars($user['name'] ?? 'User Name') ?></span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                            <li><a class="dropdown-item" href="profile.php"><i class="fas fa-user me-2"></i> Profile</a></li>
+                            <li><a class="dropdown-item action-link" href="settings.php"><i class="fas fa-user me-2"></i> Profile</a></li>
+                            <li><a class="dropdown-item action-link" href="mailto:<?= htmlspecialchars($user['email'] ?? 'user@example.com') ?>"><i class="fas fa-envelope me-2"></i> Send Mail</a></li>
                             <li><a class="dropdown-item" href="settings.php"><i class="fas fa-cog me-2"></i> Settings</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class=" ABOVE CODE IS TRUNCATED, BUT THIS IS THE FULL FILE BASED ON YOUR INPUT
-                            <a class="dropdown-item" href="logout.php"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+                            <li><a class="dropdown-item" href="logout.php"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
                         </ul>
                     </div>
                 </div>

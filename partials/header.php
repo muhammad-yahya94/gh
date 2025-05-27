@@ -79,9 +79,9 @@
             <a class="nav-link" href="index.php"><i class="fas fa-home me-1"></i> Home</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="search-result.html"><i class="fas fa-list me-1"></i> Categories</a>
+            <a class="nav-link" href="search-result.php"><i class="fas fa-list me-1"></i> Categories</a>
           </li>
-          <li class="nav-item">
+          <!-- <li class="nav-item">
             <a class="nav-link" href="#"><i class="fas fa-plus-circle me-1"></i> Sell</a>
           </li>
           <li class="nav-item">
@@ -89,7 +89,7 @@
           </li>
           <li class="nav-item">
             <a class="nav-link" href="favourit.php"><i class="fas fa-heart me-1"></i> Favorites</a>
-          </li>
+          </li> -->
         </ul>
         <div class="d-flex">
           <?php if (isset($_SESSION['user_id'])): ?>

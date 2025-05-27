@@ -132,7 +132,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reset_password'])) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <style>
+    <link rel="stylesheet" href="../admin/assets/css/admin-style.css">
+    <!-- <style>
         :root {
             --sidebar-width: 250px;
             --sidebar-bg: #343a40;
@@ -194,7 +195,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reset_password'])) {
         .btn-outline-secondary { border-color: #6c757d; color: #6c757d; }
         .btn-outline-secondary:hover { background-color: #6c757d; color: white; }
         .profile-img { width: 100px; height: 100px; object-fit: cover; }
-    </style>
+    </style> -->
 </head>
 <body>
     <!-- Sidebar -->
@@ -210,27 +211,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reset_password'])) {
                 </button>
                 <div class="d-flex align-items-center ms-auto">
                     <div class="dropdown me-3">
-                        <a href="#" class="dropdown-toggle" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-bell"></i>
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">5</span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown">
-                            <li><h6 class="dropdown-header">Notifications</h6></li>
-                            <li><a class="dropdown-item" href="#"><small>New order received</small></a></li>
-                            <li><a class="dropdown-item" href="#"><small>User registration</small></a></li>
-                            <li><a class="dropdown-item" href="#"><small>New message</small></a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-center" href="#">View all</a></li>
-                        </ul>
+                 
                     </div>
-                    <div class="dropdown">
+                            <div class="dropdown">
                         <a href="#" class="dropdown-toggle d-flex align-items-center" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="<?= !empty($user['profile_image']) ? '/gadgethub/' . htmlspecialchars($user['profile_image']) . '?t=' . time() : 'https://via.placeholder.com/40' ?>" 
-                                 class="rounded-circle me-2" alt="User">
-                            <span><?= htmlspecialchars($user['name']) ?></span>
+                            <img src="https://ui-avatars.com/api/?name=Admin+User&background=4361ee&color=fff" class="rounded-circle me-2" alt="User">
+                            <span><?= htmlspecialchars($user['name'] ?? 'User Name') ?></span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                            <li><a class="dropdown-item" href="settings.php"><i class="fas fa-user me-2"></i> Profile</a></li>
+                            <li><a class="dropdown-item action-link" href="settings.php"><i class="fas fa-user me-2"></i> Profile</a></li>
+                            <li><a class="dropdown-item action-link" href="mailto:<?= htmlspecialchars($user['email'] ?? 'user@example.com') ?>"><i class="fas fa-envelope me-2"></i> Send Mail</a></li>
                             <li><a class="dropdown-item" href="settings.php"><i class="fas fa-cog me-2"></i> Settings</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="logout.php"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>

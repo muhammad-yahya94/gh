@@ -37,7 +37,7 @@ $subcategories = [
     ['Gaming Accessories', 3],
     ['Headphones', 4],
     ['Speakers', 4],
-    ['Phone Cases', 5]
+    ['Phone Cases', 5]   
 ];
 
 // Product conditions

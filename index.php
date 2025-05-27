@@ -5,7 +5,7 @@ require_once 'db.php'; // Include database connection
 
 // Fetch categories for the "Popular Categories" section
 try {
-    $stmt = $pdo->query("SELECT id, name FROM categories ORDER BY name");
+    $stmt = $pdo->query("SELECT id, name FROM categories ORDER BY name");   
     $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     error_log("Error fetching categories: " . $e->getMessage());
@@ -77,179 +77,8 @@ function timeAgo($datetime) {
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
-  <style>
-    :root {
-      --primary-color: #002f34;
-      --secondary-color: #23e5db;
-      --accent-color: #ff6b00;
-      --light-bg: #f2f4f5;
-      --dark-text: #002f34;
-      --light-text: #7f9799;
-    }
-    
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: var(--light-bg);
-      color: var(--dark-text);
-    }
-    
-    .navbar {
-      background-color: var(--primary-color);
-      padding: 0.5rem 0;
-    }
-    
-    .navbar-brand {
-      font-weight: 700;
-      color: white !important;
-      font-size: 1.8rem;
-    }
-    
-    .nav-link {
-      color: white !important;
-      font-weight: 500;
-      padding: 0.5rem 1rem !important;
-    }
-    
-    .nav-link:hover {
-      color: var(--secondary-color) !important;
-    }
-    
-    .btn-primary {
-      background-color: var(--primary-color);
-      border-color: var(--primary-color);
-    }
-    
-    .btn-outline-primary {
-      border-color: white;
-      color: white;
-    }
-    
-    .btn-outline-primary:hover {
-      background-color: white;
-      color: var(--primary-color);
-    }
-    
-    .hero-section {
-      background-color: var(--primary-color);
-      color: white;
-      padding: 3rem 0;
-      margin-bottom: 2rem;
-    }
-    
-    .search-card {
-      background-color: white;
-      border-radius: 8px;
-      padding: 1.5rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    
-    .category-card {
-      background: white;
-      border-radius: 8px;
-      overflow: hidden;
-      transition: transform 0.3s;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-    }
-    
-    .category-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-    }
-    
-    .category-img {
-      height: 120px;
-      object-fit: cover;
-    }
-    
-    .category-icon {
-      font-size: 2rem;
-      color: var(--primary-color);
-      margin-bottom: 1rem;
-    }
-    
-    .product-card {
-      background: white;
-      border-radius: 8px;
-      overflow: hidden;
-      transition: all 0.3s;
-      height: 100%;
-    }
-    
-    .product-card:hover {
-      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-    }
-    
-    .product-img {
-      height: 180px;
-      object-fit: cover;
-    }
-    
-    .price-tag {
-      font-weight: 700;
-      color: var(--primary-color);
-    }
-    
-    .location-text {
-      color: var(--light-text);
-      font-size: 0.9rem;
-    }
-    
-    .footer {
-      background-color: var(--primary-color);
-      color: white;
-      padding: 3rem 0 1rem;
-    }
-    
-    .footer-links h5 {
-      font-weight: 600;
-      margin-bottom: 1.5rem;
-    }
-    
-    .footer-links a {
-      color: #bdc3c7;
-      text-decoration: none;
-      display: block;
-      margin-bottom: 0.5rem;
-    }
-    
-    .footer-links a:hover {
-      color: white;
-    }
-    
-    .social-icon {
-      font-size: 1.5rem;
-      color: white;
-      margin-right: 1rem;
-    }
-    
-    .app-badge {
-      height: 40px;
-      margin-right: 1rem;
-    }
-    
-    .section-title {
-      position: relative;
-      margin-bottom: 2rem;
-      font-weight: 600;
-    }
-    
-    .section-title:after {
-      content: '';
-      position: absolute;
-      left: 0;
-      bottom: -10px;
-      width: 50px;
-      height: 3px;
-      background-color: var(--accent-color);
-    }
-    
-    .badge-featured {
-      background-color: var(--accent-color);
-    }
-  </style>
+  <link rel="stylesheet" href="index.css">
+
 </head>
 <body>
   <!-- Hero Section with Search -->
@@ -307,7 +136,7 @@ function timeAgo($datetime) {
             <?php
             // Category icons mapping (you can expand this as needed)
             $category_icons = [
-                'Mobile Phones' => 'fa-mobile-alt',
+                'Mobile Phones' => 'fa-mobile-alt',    
                 'Cars' => 'fa-car',
                 'Electronics' => 'fa-laptop',
                 'Property' => 'fa-home',

@@ -1,11 +1,23 @@
 <?php
+session_start();
 include_once 'user_auth_check.php';
 require_once '../db.php';
 
 $user_id = $_SESSION['user_id'] ?? null;
+$user = null;
+
+if ($user_id) {
+    try {
+        // Fetch user details
+        $stmt = $pdo->prepare("SELECT name, email, profile_image FROM users WHERE id = ?");
+        $stmt->execute([$user_id]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Error fetching user: " . $e->getMessage());
+    }
+}
 
 $ads = [];
-$debug_info = []; // For debugging
 if ($user_id) {
     try {
         $stmt = $pdo->prepare("
@@ -18,16 +30,12 @@ if ($user_id) {
         ");
         $stmt->execute([$user_id]);
         $ads = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        // $debug_info['ads_count'] = count($ads);
-        // $debug_info['ads_data'] = $ads; // Debug: Log the retrieved ads
     } catch (PDOException $e) {
         error_log("Database error fetching user ads: " . $e->getMessage());
         $error_message = "Error fetching ads: " . htmlspecialchars($e->getMessage());
-        $debug_info['db_error'] = $e->getMessage();
     }
 } else {
     $error_message = "User not authenticated. Please log in.";
-    $debug_info['user_id'] = $user_id;
 }
 
 // Handle modal form submission for editing ads
@@ -56,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_ad'])) {
         $fileNameCmps = explode(".", $fileName);
         $fileExtension = strtolower(end($fileNameCmps));
         $newFileName = md5(time() . $fileName) . '.' . $fileExtension;
-        $uploadFileDir = '../Uploads/ads/';
+        $uploadFileDir = './Uploads/ads/';
 
         if (!is_dir($uploadFileDir)) {
             mkdir($uploadFileDir, 0777, true);
@@ -68,8 +76,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_ad'])) {
         if (in_array($fileExtension, $allowedfileExtensions)) {
             if (move_uploaded_file($fileTmpPath, $dest_path)) {
                 $image_path = 'Uploads/ads/' . $newFileName;
-                if (!empty($existing_image_path) && file_exists('../' . $existing_image_path)) {
-                    unlink('../' . $existing_image_path);
+                if (!empty($existing_image_path) && file_exists('./' . $existing_image_path) && !preg_match('#^https?://#', $existing_image_path)) {
+                    unlink('./' . $existing_image_path);
                 }
             } else {
                 $edit_errors['image'] = 'Error moving the uploaded file.';
@@ -125,67 +133,22 @@ if (isset($_SESSION['success_message'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Ads - OLX Clone</title>
+    <title>My Ads - GadgetHub</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../admin/assets/css/admin-style.css">
     <style>
-        :root {
-            --sidebar-width: 250px;
-            --sidebar-bg: #343a40;
-            --sidebar-color: #e9ecef;
-            --sidebar-active-bg: #007bff;
-            --header-height: 56px;
+        .thumbnail-img, .image-preview {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 5px;
         }
-        body { overflow-x: hidden; }
-        .sidebar {
-            width: var(--sidebar-width);
-            height: 100vh;
-            position: fixed;
-            left: 0;
-            top: 0;
-            background: var(--sidebar-bg);
-            color: var(--sidebar-color);
-            transition: all 0.3s;
-            z-index: 1000;
+        .modal-body img {
+            max-width: 300px;
+            height: auto;
+            border-radius: 5px;
         }
-        .sidebar-header { padding: 1rem; background: rgba(0, 0, 0, 0.2); }
-        .sidebar-menu { padding: 0; list-style: none; }
-        .sidebar-menu li { position: relative; }
-        .sidebar-menu li a {
-            display: block;
-            padding: 0.75rem 1rem;
-            color: var(--sidebar-color);
-            text-decoration: none;
-            transition: all 0.3s;
-        }
-        .sidebar-menu li a:hover, .sidebar-menu li a.active {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-        }
-        .sidebar-menu li a.active { background: var(--sidebar-active-bg); }
-        .sidebar-menu li a i { margin-right: 10px; width: 20px; text-align: center; }
-        .sidebar-menu .submenu { padding-left: 20px; list-style: none; display: none; }
-        .sidebar-menu .submenu.show { display: block; }
-        .main-content {
-            margin-left: var(--sidebar-width);
-            min-height: 100vh;
-            transition: all 0.3s;
-        }
-        .header {
-            height: var(--header-height);
-            background: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        .sidebar-collapsed { margin-left: -250px; }
-        .content-expanded { margin-left: 0; }
-        .badge-sm { font-size: 0.65em; padding: 0.25em 0.4em; }
-        .form-label { font-weight: 500; }
-        .card-header { background-color: #f8f9fa; }
-        .btn-primary { background-color: #007bff; border-color: #007bff; }
-        .btn-primary:hover { background-color: #0056b3; border-color: #0056b3; }
-        .btn-outline-secondary { border-color: #6c757d; color: #6c757d; }
-        .btn-outline-secondary:hover { background-color: #6c757d; color: white; }
-        .image-preview { max-width: 200px; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -198,7 +161,7 @@ if (isset($_SESSION['success_message'])) {
                     <i class="fas fa-bars"></i>
                 </button>
                 <div class="d-flex align-items-center ms-auto">
-                    <div class="dropdown me-3">
+                    <!-- <div class="dropdown me-3">
                         <a href="#" class="dropdown-toggle" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-bell"></i>
                             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">3</span>
@@ -211,14 +174,15 @@ if (isset($_SESSION['success_message'])) {
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item text-center" href="#">View all</a></li>
                         </ul>
-                    </div>
-                    <div class="dropdown">
+                    </div> -->
+            <div class="dropdown">
                         <a href="#" class="dropdown-toggle d-flex align-items-center" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="https://via.placeholder.com/40" class="rounded-circle me-2" alt="User">
-                            <span>User Name</span>
+                            <img src="https://ui-avatars.com/api/?name=Admin+User&background=4361ee&color=fff" class="rounded-circle me-2" alt="User">
+                            <span><?= htmlspecialchars($user['name'] ?? 'User Name') ?></span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                            <li><a class="dropdown-item" href="profile.php"><i class="fas fa-user me-2"></i> Profile</a></li>
+                            <li><a class="dropdown-item action-link" href="settings.php"><i class="fas fa-user me-2"></i> Profile</a></li>
+                            <li><a class="dropdown-item action-link" href="mailto:<?= htmlspecialchars($user['email'] ?? 'user@example.com') ?>"><i class="fas fa-envelope me-2"></i> Send Mail</a></li>
                             <li><a class="dropdown-item" href="settings.php"><i class="fas fa-cog me-2"></i> Settings</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="logout.php"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
@@ -229,7 +193,7 @@ if (isset($_SESSION['success_message'])) {
         </nav>
 
         <div class="container-fluid py-4">
-            <div class="row mb-4">
+            <div class="row mb-2">
                 <div class="col-12">
                     <h2 class="mb-0">My Ads</h2>
                     <nav aria-label="breadcrumb">
@@ -240,6 +204,8 @@ if (isset($_SESSION['success_message'])) {
                     </nav>
                 </div>
             </div>
+
+
 
             <?php if ($success_message): ?>
                 <div class="alert alert-success">
@@ -253,23 +219,9 @@ if (isset($_SESSION['success_message'])) {
             <?php endif; ?>
             <?php if (!empty($edit_errors)): ?>
                 <div class="alert alert-danger">
-                    <?php foreach ($edit_errors as $error): ?>
+                    <?php foreach ($edit_errors as $error): ?>   
                         <p><?= htmlspecialchars($error) ?></p>
                     <?php endforeach; ?>
-                </div>
-            <?php endif; ?>
-            <!-- Debug Information -->
-            <?php if (!empty($debug_info)): ?>
-                <div class="alert alert-info">
-                    <strong>Debug Info:</strong><br>
-                    User ID: <?= htmlspecialchars($user_id ?? 'Not set') ?><br>
-                    Ads Count: <?= htmlspecialchars($debug_info['ads_count'] ?? '0') ?><br>
-                    <?php if (isset($debug_info['db_error'])): ?>
-                        Database Error: <?= htmlspecialchars($debug_info['db_error']) ?><br>
-                    <?php endif; ?>
-                    <?php if (!empty($debug_info['ads_data'])): ?>
-                        First Ad Data: <pre><?= htmlspecialchars(print_r($debug_info['ads_data'][0], true)) ?></pre>
-                    <?php endif; ?>
                 </div>
             <?php endif; ?>
 
@@ -290,6 +242,7 @@ if (isset($_SESSION['success_message'])) {
                             <table class="table table-bordered table-hover">
                                 <thead>
                                     <tr>
+                                        <th>Image</th>
                                         <th>Title</th>
                                         <th>Category</th>
                                         <th>Price</th>
@@ -300,10 +253,18 @@ if (isset($_SESSION['success_message'])) {
                                 </thead>
                                 <tbody>
                                     <?php foreach ($ads as $ad): ?>
+                                        <?php
+                                        $image_path = $ad['image_path'] ?? '';
+                                        $is_url = preg_match('#^https?://#', $image_path);
+                                        $thumbnail_url = $image_path ? ($is_url ? $image_path : '/gadgethub/' . $image_path . '?t=' . time()) : '/gadgethub/placeholder.jpg';
+                                        ?>
                                         <tr>
+                                            <td>
+                                                <img src="<?= htmlspecialchars($thumbnail_url) ?>" class="thumbnail-img" alt="<?= htmlspecialchars($ad['title'] ?? 'Ad Image') ?>" onerror="this.src='/gadgethub/placeholder.jpg';">
+                                            </td>
                                             <td><?= htmlspecialchars($ad['title'] ?? 'N/A') ?></td>
                                             <td><?= htmlspecialchars($ad['category_name'] ?? 'N/A') ?> / <?= htmlspecialchars($ad['subcategory_name'] ?? 'N/A') ?></td>
-                                            <td>$<?= number_format($ad['price'] ?? 0, 2) ?></td>
+                                            <td>PKR <?= number_format($ad['price'] ?? 0, 2) ?></td>
                                             <td>
                                                 <span class="badge 
                                                     <?= ($ad['status'] ?? '') === 'active' ? 'bg-success' : 
@@ -340,31 +301,16 @@ if (isset($_SESSION['success_message'])) {
                                                     </div>
                                                     <div class="modal-body">
                                                         <p><strong>Category:</strong> <?= htmlspecialchars($ad['category_name'] ?? 'N/A') ?> / <?= htmlspecialchars($ad['subcategory_name'] ?? 'N/A') ?></p>
-                                                        <p><strong>Price:</strong> $<?= number_format($ad['price'] ?? 0, 2) ?></p>
+                                                        <p><strong>Price:</strong> PKR <?= number_format($ad['price'] ?? 0, 2) ?></p>
                                                         <p><strong>Location:</strong> <?= htmlspecialchars($ad['location'] ?? 'N/A') ?></p>
                                                         <p><strong>Description:</strong> <?= htmlspecialchars($ad['description'] ?? 'N/A') ?></p>
                                                         <p><strong>Status:</strong> <?= ucfirst($ad['status'] ?? 'N/A') ?></p>
                                                         <p><strong>Created:</strong> <?= date('M j, Y', strtotime($ad['created_at'] ?? 'now')) ?></p>
                                                         <p><strong>Image:</strong></p>
                                                         <?php
-                                                        $image_path = $ad['image_path'] ?? '';
-                                                        $full_image_path = $image_path ? '../' . $image_path : '';
-                                                        $absolute_image_url = $image_path ? '/gadgethub/' . $image_path : '';
-                                                        $absolute_image_url_with_cache_bust = $absolute_image_url . '?t=' . time(); // Cache-busting
+                                                        $display_image = $image_path ? ($is_url ? $image_path : '/gadgethub/' . $image_path . '?t=' . time()) : '/gadgethub/placeholder.jpg';
                                                         ?>
-                                                        <?php if (!empty($image_path)): ?>
-                                                            <p>Image Path in DB: <?= htmlspecialchars($image_path) ?></p>
-                                                            <p>Full Path: <?= htmlspecialchars($full_image_path) ?></p>
-                                                            <p>File Exists: <?= file_exists($full_image_path) ? 'Yes' : 'No' ?></p>
-                                                            <?php if (file_exists($full_image_path)): ?>
-                                                                <p>Testing URL: <a href="<?= htmlspecialchars($absolute_image_url) ?>" target="_blank"><?= htmlspecialchars($absolute_image_url) ?></a></p>
-                                                                <img id="adImageAbs<?= $ad['id'] ?>" src="<?= htmlspecialchars($absolute_image_url_with_cache_bust) ?>" alt="Ad Image" class="img-fluid" style="max-width: 300px;">
-                                                            <?php else: ?>
-                                                                <p>Image file not found at: <?= htmlspecialchars($full_image_path) ?></p>
-                                                            <?php endif; ?>
-                                                        <?php else: ?>
-                                                            <p>No image available.</p>
-                                                        <?php endif; ?>
+                                                        <img id="adImageAbs<?= $ad['id'] ?>" src="<?= htmlspecialchars($display_image) ?>" alt="<?= htmlspecialchars($ad['title'] ?? 'Ad Image') ?>" class="img-fluid" onerror="this.src='/gadgethub/placeholder.jpg'; this.alt='Image failed to load';">
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -444,20 +390,13 @@ if (isset($_SESSION['success_message'])) {
                                                                         <div class="invalid-feedback"><?= htmlspecialchars($edit_errors['image']) ?></div>
                                                                     <?php endif; ?>
                                                                     <?php if (!empty($ad['image_path'])): ?>
-                                                                        <p>Current Image Path: <?= htmlspecialchars($ad['image_path']) ?></p>
                                                                         <?php
-                                                                        $edit_image_url = '/gadgethub/' . htmlspecialchars($ad['image_path']) . '?t=' . time(); // Cache-busting
-                                                                        $full_edit_image_path = '../' . $ad['image_path'];
+                                                                        $is_edit_url = preg_match('#^https?://#', $ad['image_path']);
+                                                                        $edit_image_url = $is_edit_url ? $ad['image_path'] : '/gadgethub/' . htmlspecialchars($ad['image_path']) . '?t=' . time();
                                                                         ?>
-                                                                        <p>Full Path: <?= htmlspecialchars($full_edit_image_path) ?></p>
-                                                                        <p>File Exists: <?= file_exists($full_edit_image_path) ? 'Yes' : 'No' ?></p>
-                                                                        <?php if (file_exists($full_edit_image_path)): ?>
-                                                                            <img id="editImage<?= $ad['id'] ?>" src="<?= $edit_image_url ?>" alt="Current Image" class="image-preview" 
-                                                                                 onload="console.log('Edit image loaded: ' + this.src)" 
-                                                                                 onerror="console.log('Edit image failed to load: ' + this.src); this.src='/gadgethub/placeholder.jpg'; this.alt='Image failed to load';">
-                                                                        <?php else: ?>
-                                                                            <p>Image file not found at: <?= htmlspecialchars($full_edit_image_path) ?></p>
-                                                                        <?php endif; ?>
+                                                                        <p>Current Image:</p>
+                                                                        <img id="editImage<?= $ad['id'] ?>" src="<?= htmlspecialchars($edit_image_url) ?>" alt="Current Image" class="image-preview" 
+                                                                             onerror="this.src='/gadgethub/placeholder.jpg'; this.alt='Image failed to load';">
                                                                     <?php endif; ?>
                                                                     <img id="imagePreview<?= $ad['id'] ?>" class="image-preview" style="display: none;">
                                                                 </div>
@@ -544,34 +483,6 @@ if (isset($_SESSION['success_message'])) {
                         reader.readAsDataURL(file);
                     } else {
                         preview.hide();
-                    }
-                });
-
-                $('#viewAdModal<?= $ad['id'] ?>').on('shown.bs.modal', function () {
-                    console.log('Modal opened for ad ID <?= $ad['id'] ?>');
-                    const imgAbs = document.getElementById('adImageAbs<?= $ad['id'] ?>');
-                    console.log('Attempting to load view image: ' + imgAbs.src);
-                    imgAbs.src = imgAbs.src; // Force reload
-                    imgAbs.onload = function() {
-                        console.log('View image loaded successfully: ' + imgAbs.src);
-                    };
-                    imgAbs.onerror = function() {
-                        console.log('View image failed to load: ' + imgAbs.src);
-                    };
-                });
-
-                $('#editAdModal<?= $ad['id'] ?>').on('shown.bs.modal', function () {
-                    console.log('Edit modal opened for ad ID <?= $ad['id'] ?>');
-                    const imgEdit = document.getElementById('editImage<?= $ad['id'] ?>');
-                    if (imgEdit) {
-                        console.log('Attempting to load edit image: ' + imgEdit.src);
-                        imgEdit.src = imgEdit.src; // Force reload
-                        imgEdit.onload = function() {
-                            console.log('Edit image loaded successfully: ' + imgEdit.src);
-                        };
-                        imgEdit.onerror = function() {
-                            console.log('Edit image failed to load: ' + imgEdit.src);
-                        };
                     }
                 });
             <?php endforeach; ?>
