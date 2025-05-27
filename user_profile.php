@@ -58,7 +58,7 @@ try {
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head>  
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($user['name']) ?> - GadgetHub Profile</title>
@@ -222,7 +222,7 @@ try {
                                                 <h5 class="card-title"><?= htmlspecialchars($ad['title']) ?></h5>
                                                 <p class="card-text product-price">PKR <?= number_format($ad['price']) ?></p>
                                                 <p class="card-text text-muted"><small><i class="fas fa-map-marker-alt me-1"></i><?= htmlspecialchars($ad['location']) ?></small></p>
-                                                <a href="ad-details.php?id=<?= $ad['id'] ?>" class="stretched-link"></a>
+                                                <a href="ad-details.php?id=<?= $ad['id'] ?>"></a>
                                             </div>
                                         </div>
                                     </div>

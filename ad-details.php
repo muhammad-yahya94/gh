@@ -324,7 +324,7 @@ try {
                                     <h5 class="card-title"><?= htmlspecialchars($similar_ad['title']) ?></h5>
                                     <p class="card-text product-price">PKR <?= number_format($similar_ad['price']) ?></p>
                                     <p class="card-text text-muted"><small><i class="fas fa-map-marker-alt me-1"></i><?= htmlspecialchars($similar_ad['location']) ?></small></p>
-                                    <a href="ad-details.php?id=<?= $similar_ad['id'] ?>" class="stretched-link"></a>
+                                    <a href="ad-details.php?id=<?= $similar_ad['id'] ?>" class=""></a>
                                 </div>
                             </div>
                         </div>
@@ -352,7 +352,7 @@ try {
             } else {
                 themeToggle.querySelector('i').classList.replace('fa-sun', 'fa-moon');
             }
-        }
+        }  
 
         themeToggle.addEventListener('click', () => {
             if (body.classList.contains('dark-mode')) {
