@@ -12,6 +12,20 @@ try {
     $categories = [];
 }
 
+// Fetch unique locations for the search dropdown (active ads only)
+try {
+    $stmt = $pdo->query("
+        SELECT DISTINCT location 
+        FROM ads 
+        WHERE status = 'active' AND location IS NOT NULL AND location != ''
+        ORDER BY location
+    ");
+    $locations = $stmt->fetchAll(PDO::FETCH_COLUMN);
+} catch (PDOException $e) {
+    error_log("Error fetching locations: " . $e->getMessage());
+    $locations = [];
+}
+
 // Fetch recently added ads (4 most recent, approved)
 try {
     $stmt = $pdo->query("
@@ -63,6 +77,15 @@ function timeAgo($datetime) {
         return "Just now";
     }
 }
+
+// Helper function to format location
+function formatLocation($location) {
+    if (empty($location)) {
+        return "Location not specified";
+    }
+    // Capitalize each word in the location
+    return ucwords(strtolower(htmlspecialchars(trim($location))));
+}
 ?>
 
 <!DOCTYPE html>
@@ -78,7 +101,42 @@ function timeAgo($datetime) {
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="index.css">
-
+  <style>
+    .safety-notice {
+        background-color: #fff3cd;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        color: #856404;
+        font-size: 0.9rem;
+    }
+    .product-card {
+        position: relative;
+        transition: transform 0.2s;
+    }
+    .product-card:hover {
+        transform: translateY(-5px);
+    }
+    .product-img {
+        height: 180px;
+        object-fit: cover;
+        border-radius: 8px 8px 0 0;
+    }
+    .category-img {
+        height: 120px;
+        object-fit: cover;
+        border-radius: 0 0 8px 8px;
+    }
+    .location-text {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+    .badge-featured {
+        background-color: #ffeb3b;
+        color: #333;
+        font-weight: 500;
+    }
+  </style>
 </head>
 <body>
   <!-- Hero Section with Search -->
@@ -109,10 +167,9 @@ function timeAgo($datetime) {
                 <div class="col-md-3">
                   <select name="location" class="form-select form-select-lg">
                     <option value="">All Locations</option>
-                    <option value="Lahore">Lahore</option>
-                    <option value="Karachi">Karachi</option>
-                    <option value="Islamabad">Islamabad</option>
-                    <option value="Rawalpindi">Rawalpindi</option>
+                    <?php foreach ($locations as $location): ?>
+                        <option value="<?= htmlspecialchars($location) ?>"><?= formatLocation($location) ?></option>
+                    <?php endforeach; ?>
                   </select>
                 </div>
                 <div class="col-md-1">
@@ -126,6 +183,13 @@ function timeAgo($datetime) {
     </div>
   </section>
 
+  <!-- Safety Notice -->
+  <section class="container mb-5">
+    <div class="safety-notice">
+      <p><strong>Safety Tips:</strong> To avoid scams, meet buyers/sellers in a public place, verify the item in person before payment, and avoid sharing personal or financial information.</p>
+    </div>
+  </section>
+
   <!-- Categories Section -->
   <section class="container mb-5">
     <h2 class="section-title">Popular Categories</h2>
@@ -134,31 +198,26 @@ function timeAgo($datetime) {
     <?php else: ?>
         <div class="row g-4">
             <?php
-            // Category icons mapping (you can expand this as needed)
             $category_icons = [
                 'Mobile Phones' => 'fa-mobile-alt',    
                 'Cars' => 'fa-car',
                 'Electronics' => 'fa-laptop',
                 'Property' => 'fa-home',
-                // Add more mappings as needed
             ];
-            // Category images (you can replace these with actual images or store them in the database)
             $category_images = [
                 'Mobile Phones' => 'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
                 'Cars' => 'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
                 'Electronics' => 'https://images.unsplash.com/photo-1518770660439-4636190af475?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
                 'Property' => 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
-                // Add more mappings as needed
             ];
             foreach ($categories as $category):
-                // Mock ad count (you can add a real count by joining with the ads table if needed)
-                $ad_count = rand(5000, 20000);
-                $icon_class = $category_icons[$category['name']] ?? 'fa-tag'; // Default icon if not mapped
+                $ad_count = rand(5000, 20000); // Replace with real count if needed
+                $icon_class = $category_icons[$category['name']] ?? 'fa-tag';
                 $category_image = $category_images[$category['name']] ?? 'https://via.placeholder.com/500x120?text=' . urlencode($category['name']);
             ?>
                 <div class="col-6 col-md-3">
                     <a href="search-result.php?category=<?= urlencode($category['id']) ?>" class="category-card text-decoration-none text-dark">
-                        <div class="p-3 text-center">
+                        <div class="p-2 text-center">
                             <div class="category-icon">
                                 <i class="fas <?= htmlspecialchars($icon_class) ?>"></i>
                             </div>
@@ -177,22 +236,26 @@ function timeAgo($datetime) {
   <section class="container mb-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h2 class="section-title">Recently Added</h2>
-      <a href="search-result.php" class="btn btn-outline-primary">View All</a>
+      <a href="search-result.php" class="btn btn-primary">View All</a>
     </div>
     <?php if (empty($recent_ads)): ?>
         <div class="alert alert-info">No recent ads found.</div>
     <?php else: ?>
         <div class="row g-4">
             <?php foreach ($recent_ads as $ad): ?>
+                <?php
+                $is_url = preg_match('#^https?://#', $ad['image_path'] ?? '');
+                $image_url = !empty($ad['image_path']) ? ($is_url ? $ad['image_path'] : '/gadgethub/' . htmlspecialchars($ad['image_path']) . '?t=' . time()) : 'https://via.placeholder.com/500x180?text=No+Image';
+                ?>
                 <div class="col-6 col-md-4 col-lg-3">
                     <div class="product-card">
                         <a href="ad-details.php?id=<?= htmlspecialchars($ad['id']) ?>" class="text-decoration-none text-dark">
-                            <img src="<?= !empty($ad['image_path']) ? '/gadgethub/' . htmlspecialchars($ad['image_path']) . '?t=' . time() : 'https://via.placeholder.com/500x180?text=No+Image' ?>" 
+                            <img src="<?= htmlspecialchars($image_url) ?>" 
                                  class="product-img w-100" alt="<?= htmlspecialchars($ad['title']) ?>">
                             <div class="p-3">
                                 <h5 class="mb-1"><?= htmlspecialchars($ad['title']) ?></h5>
                                 <p class="price-tag mb-1">Rs <?= number_format($ad['price'], 0) ?></p>
-                                <p class="location-text mb-2"><i class="fas fa-map-marker-alt"></i> <?= htmlspecialchars($ad['location']) ?></p>
+                                <p class="location-text mb-2"><i class="fas fa-map-marker-alt"></i> <?= formatLocation($ad['location']) ?></p>
                                 <small class="text-muted"><?= timeAgo($ad['created_at']) ?></small>
                             </div>
                         </a>
@@ -207,25 +270,29 @@ function timeAgo($datetime) {
   <section class="container mb-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h2 class="section-title">Featured Ads</h2>
-      <a href="search-result.php" class="btn btn-outline-primary">View All</a>
+      <a href="search-result.php" class="btn btn-primary">View All</a>
     </div>
     <?php if (empty($featured_ads)): ?>
         <div class="alert alert-info">No featured ads found.</div>
     <?php else: ?>
         <div class="row g-4">
             <?php foreach ($featured_ads as $index => $ad): ?>
+                <?php
+                $is_url = preg_match('#^https?://#', $ad['image_path'] ?? '');
+                $image_url = !empty($ad['image_path']) ? ($is_url ? $ad['image_path'] : '/gadgethub/' . htmlspecialchars($ad['image_path']) . '?t=' . time()) : 'https://via.placeholder.com/500x180?text=No+Image';
+                ?>
                 <div class="col-6 col-md-4 col-lg-3">
                     <div class="product-card">
                         <a href="ad-details.php?id=<?= htmlspecialchars($ad['id']) ?>" class="text-decoration-none text-dark">
                             <?php if ($index < 2): ?>
                                 <span class="badge badge-featured position-absolute m-2">Featured</span>
                             <?php endif; ?>
-                            <img src="<?= !empty($ad['image_path']) ? '/gadgethub/' . htmlspecialchars($ad['image_path']) . '?t=' . time() : 'https://via.placeholder.com/500x180?text=No+Image' ?>" 
+                            <img src="<?= htmlspecialchars($image_url) ?>" 
                                  class="product-img w-100" alt="<?= htmlspecialchars($ad['title']) ?>">
                             <div class="p-3">
                                 <h5 class="mb-1"><?= htmlspecialchars($ad['title']) ?></h5>
                                 <p class="price-tag mb-1">Rs <?= number_format($ad['price'], 0) ?></p>
-                                <p class="location-text mb-2"><i class="fas fa-map-marker-alt"></i> <?= htmlspecialchars($ad['location']) ?></p>
+                                <p class="location-text mb-2"><i class="fas fa-map-marker-alt"></i> <?= formatLocation($ad['location']) ?></p>
                                 <small class="text-muted"><?= timeAgo($ad['created_at']) ?></small>
                             </div>
                         </a>
@@ -241,7 +308,7 @@ function timeAgo($datetime) {
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // Simple theme toggle functionality
+    // Theme toggle and card animation
     document.addEventListener('DOMContentLoaded', function() {
       const themeToggle = document.createElement('button');
       themeToggle.className = 'btn btn-sm btn-outline-light position-fixed bottom-0 end-0 m-3';
@@ -253,7 +320,6 @@ function timeAgo($datetime) {
       };
       document.body.appendChild(themeToggle);
       
-      // Add animation to cards when they come into view
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
