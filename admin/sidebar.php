@@ -7,7 +7,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     <div class="sidebar-header">
         <h4>Gadget Hub</h4>
         <button class="btn btn-sm btn-outline-light toggle-sidebar d-lg-none">
-            <i class="fas fa-times"></i>
+            <a href="../index.php"><i class="fas fa-times"></i></a>
         </button>
     </div>
     <ul class="sidebar-menu">
@@ -55,7 +55,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             </ul>
         </li>
 
-        <li>
+        <!-- <li>
             <a href="reports.php" class="<?= $currentPage == 'reports.php' ? 'active' : '' ?>">
                 <i class="fas fa-flag"></i>
                 <span>Reports</span>
@@ -67,7 +67,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                 <i class="fas fa-comments"></i>
                 <span>Messages</span>
             </a>
-        </li>
+        </li> -->
 
         <li>
             <a href="settings.php" class="<?= $currentPage == 'settings.php' ? 'active' : '' ?>">

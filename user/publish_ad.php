@@ -124,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 </div>
             </div>
-        </nav>
+        </nav>   
 
         <div class="container-fluid py-4">
             <div class="row mb-4">

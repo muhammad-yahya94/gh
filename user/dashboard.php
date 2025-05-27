@@ -138,6 +138,7 @@ if ($user_id) {
                 <button class="btn btn-link toggle-sidebar d-none d-lg-block">
                     <i class="fas fa-bars"></i>
                 </button>
+                <div class="d-flex align-items-center ms-auto">
                     <div class="dropdown">
                         <a href="#" class="dropdown-toggle d-flex align-items-center" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                             <img src="https://ui-avatars.com/api/?name=Admin+User&background=4361ee&color=fff" class="rounded-circle me-2" alt="User">

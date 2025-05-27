@@ -123,7 +123,7 @@ if (isset($_GET['filter_category']) && !empty($_GET['filter_category'])) {
     <?php include 'sidebar.php'; ?>
 
     <div class="main-content">
-        <!-- Header -->
+        <!-- Header -->   
         <nav class="header navbar navbar-expand-lg navbar-light">
             <div class="container-fluid">
                 <button class="btn btn-link toggle-sidebar d-none d-lg-block">
@@ -227,7 +227,6 @@ if (isset($_GET['filter_category']) && !empty($_GET['filter_category'])) {
                 <div class="col-lg-4">
                     <div class="table-card">
                         <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h5 class="mb-0">Subcategories</h5>
                             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSubcategoryModal">
                                 <i class="fas fa-plus me-2"></i>Add Subcategory
                             </button>
