@@ -1,4 +1,3 @@
--- Database: `gadget_hub`
 
 -- Table structure for table `ads`
 CREATE TABLE `ads` (
