@@ -317,9 +317,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="d-grid mb-3">
           <button type="submit" class="btn btn-primary login-btn">Login</button>
         </div>
-        <div class="text-center">
-          <a href="#" class="forgot-link">Forgot Password?</a>
-        </div>
       </form>
 
       <p class="signup-text">Don't have an account? <a href="signup.php" class="signup-link">Sign Up</a></p>

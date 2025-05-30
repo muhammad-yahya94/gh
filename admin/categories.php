@@ -1,57 +1,56 @@
 <?php
 include_once 'auth_check.php'; // Include authentication check
-// categories.php
 require_once '../db.php';
 require_once 'sidebar.php';
+
+// Initialize error message variable
+$error_message = '';
+$success_message = '';
 
 // Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['add_category'])) {
         $name = trim($_POST['category_name']);
         
-        // Handle image upload - START
-        $image_path = null; // Default to null
+        // Handle image upload
+        $image_path = null;
         if (isset($_FILES['category_image']) && $_FILES['category_image']['error'] === UPLOAD_ERR_OK) {
             $fileTmpPath = $_FILES['category_image']['tmp_name'];
             $fileName = $_FILES['category_image']['name'];
             $fileNameCmps = explode(".", $fileName);
             $fileExtension = strtolower(end($fileNameCmps));
 
-            // Sanitize file name
             $newFileName = md5(time() . $fileName) . '.' . $fileExtension;
-
-            // Directory relative to the webroot
             $uploadFileDir = '../uploads/categories/';
 
-            // Ensure upload directory exists (create if not)
             if (!is_dir($uploadFileDir)) {
                 mkdir($uploadFileDir, 0777, true);
             }
 
             $dest_path = $uploadFileDir . $newFileName;
-
-            // Allowed file extensions
-            $allowedfileExtensions = array('jpg', 'gif', 'png', 'jpeg');
+            $allowedfileExtensions = ['jpg', 'gif', 'png', 'jpeg'];
 
             if (in_array($fileExtension, $allowedfileExtensions)) {
                 if (move_uploaded_file($fileTmpPath, $dest_path)) {
-                    $image_path = $dest_path; // Store path relative to webroot
+                    $image_path = $dest_path;
                 } else {
-                    // Handle file upload error (optional)
-                    // echo "Error moving uploaded file.";
+                    $error_message = "Error moving uploaded file.";
                 }
             } else {
-                 // Handle invalid file type error (optional)
-                 // echo "Invalid file type.";
+                $error_message = "Invalid file type. Allowed types: " . implode(', ', $allowedfileExtensions);
             }
         }
-        // Handle image upload - END
         
-        if (!empty($name)) {
-            $stmt = $pdo->prepare("INSERT INTO categories (name, image_path) VALUES (?, ?)");
-            $stmt->execute([$name, $image_path]);
-            header("Location: categories.php");
-            exit();
+        if (empty($error_message) && !empty($name)) {
+            try {
+                $stmt = $pdo->prepare("INSERT INTO categories (name, image_path) VALUES (?, ?)");
+                $stmt->execute([$name, $image_path]);
+                $success_message = "Category added successfully!";
+                header("Location: categories.php");
+                exit();
+            } catch (PDOException $e) {
+                $error_message = "Error adding category: " . $e->getMessage();
+            }
         }
     }
     
@@ -60,27 +59,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $category_id = $_POST['parent_category'];
         
         if (!empty($name) && !empty($category_id)) {
-            $stmt = $pdo->prepare("INSERT INTO subcategories (name, category_id) VALUES (?, ?)");
-            $stmt->execute([$name, $category_id]);
-            header("Location: categories.php");
-            exit();
+            try {
+                $stmt = $pdo->prepare("INSERT INTO subcategories (name, category_id) VALUES (?, ?)");
+                $stmt->execute([$name, $category_id]);
+                $success_message = "Subcategory added successfully!";
+                header("Location: categories.php");
+                exit();
+            } catch (PDOException $e) {
+                $error_message = "Error adding subcategory: " . $e->getMessage();
+            }
+        } else {
+            $error_message = "Subcategory name and parent category are required.";
         }
     }
     
     if (isset($_POST['delete_category'])) {
         $id = $_POST['category_id'];
-        $stmt = $pdo->prepare("DELETE FROM categories WHERE id = ?");
+        
+        // Check for dependent subcategories
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM subcategories WHERE category_id = ?");
         $stmt->execute([$id]);
-        header("Location: categories.php");
-        exit();
+        $subcategory_count = $stmt->fetchColumn();
+
+        if ($subcategory_count > 0) {
+            $error_message = "Cannot delete category because it has $subcategory_count associated subcategories. Delete or reassign the subcategories first.";
+        } else {
+            try {
+                $stmt = $pdo->prepare("DELETE FROM categories WHERE id = ?");
+                $stmt->execute([$id]);
+                $success_message = "Category deleted successfully!";
+                header("Location: categories.php");
+                exit();
+            } catch (PDOException $e) {
+                $error_message = "Error deleting category: " . $e->getMessage();
+            }
+        }
     }
     
     if (isset($_POST['delete_subcategory'])) {
         $id = $_POST['subcategory_id'];
-        $stmt = $pdo->prepare("DELETE FROM subcategories WHERE id = ?");
-        $stmt->execute([$id]);
-        header("Location: categories.php");
-        exit();
+        try {
+            $stmt = $pdo->prepare("DELETE FROM subcategories WHERE id = ?");
+            $stmt->execute([$id]);
+            $success_message = "Subcategory deleted successfully!";
+            header("Location: categories.php");
+            exit();
+        } catch (PDOException $e) {
+            $error_message = "Error deleting subcategory: " . $e->getMessage();
+        }
     }
 }
 
@@ -110,20 +136,15 @@ if (isset($_GET['filter_category']) && !empty($_GET['filter_category'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Categories - Gadget Hub Admin</title>
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/admin-style.css">
 </head>
 <body>
     <?php include 'sidebar.php'; ?>
 
     <div class="main-content">
-        <!-- Header -->   
         <nav class="header navbar navbar-expand-lg navbar-light">
             <div class="container-fluid">
                 <button class="btn btn-link toggle-sidebar d-none d-lg-block">
@@ -146,7 +167,6 @@ if (isset($_GET['filter_category']) && !empty($_GET['filter_category'])) {
             </div>
         </nav>
 
-        <!-- Page Content -->
         <div class="container-fluid py-4">
             <div class="row mb-4">
                 <div class="col-12">
@@ -159,6 +179,20 @@ if (isset($_GET['filter_category']) && !empty($_GET['filter_category'])) {
                     </nav>
                 </div>
             </div>
+
+            <!-- Display Error or Success Messages -->
+            <?php if (!empty($error_message)): ?>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <?= htmlspecialchars($error_message) ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <?php endif; ?>
+            <?php if (!empty($success_message)): ?>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <?= htmlspecialchars($success_message) ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <?php endif; ?>
 
             <!-- Categories Section -->
             <div class="row">
@@ -328,7 +362,7 @@ if (isset($_GET['filter_category']) && !empty($_GET['filter_category'])) {
                 </div>
                 <div class="modal-body">
                     <p>Are you sure you want to delete the category "<?php echo htmlspecialchars($category['name']); ?>"?</p>
-                    <p class="text-danger">This action cannot be undone.</p>
+                    <p class="text-danger">This action cannot be undone. Ensure there are no associated subcategories.</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -367,11 +401,8 @@ if (isset($_GET['filter_category']) && !empty($_GET['filter_category'])) {
     </div>
     <?php endforeach; ?>
 
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Custom JS -->
     <script>
-        // Toggle Sidebar
         document.querySelector('.toggle-sidebar').addEventListener('click', function() {
             document.querySelector('.sidebar').classList.toggle('show');
             document.querySelector('.main-content').classList.toggle('sidebar-collapsed');
